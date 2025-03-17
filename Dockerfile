@@ -41,12 +41,17 @@ ENV DYNACONF_TESTS__MAX_ALLOWED_RUNTIME_SECONDS=1800
 EXPOSE 3000
 EXPOSE 27017  
 
-CMD mongod --bind_ip_all --logpath /var/log/mongodb/mongodb.log --dbpath /data/db & \
-    # sleep 5 && \
-    until mongosh --eval "db.runCommand({ ping: 1 })" > /dev/null 2>&1; do sleep 1; done && \
-    yarn start
-# Final image (optional, if needed)
-# FROM node:alpine AS final
-# WORKDIR /app
-# COPY --from=node-app /app .
-# CMD ["node", "server.js"]
+# CMD mongod --bind_ip_all --logpath /var/log/mongodb/mongodb.log --dbpath /data/db & \
+#     # sleep 5 && \
+#     until mongosh --eval "db.runCommand({ ping: 1 })" > /dev/null 2>&1; do sleep 1; done && \
+#     yarn start
+
+RUN echo '#!/bin/bash\n\
+mongod --bind_ip_all --logpath /var/log/mongodb/mongodb.log --dbpath /data/db &\n\
+echo "Waiting for MongoDB to start..."\n\
+until mongosh --eval "db.runCommand({ ping: 1 })" > /dev/null 2>&1; do sleep 1; done\n\
+echo "MongoDB started"\n\
+exec "$@"' > /app/docker-entrypoint.sh && chmod +x /app/docker-entrypoint.sh
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD ["yarn", "start"]
