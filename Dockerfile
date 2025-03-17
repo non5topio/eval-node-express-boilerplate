@@ -2,9 +2,9 @@
 FROM node:20 AS node-app
 
 # RUN mkdir -p /app/node-app && chown -R node:node /app/node-app
-RUN apt-get update && apt-get install -y wget gnupg && \
-    wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add - && \
-    echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.4 main" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list && \
+RUN apt-get update && apt-get install -y wget gnupg curl && \
+    curl -fsSL https://pgp.mongodb.com/server-6.0.asc | tee /etc/apt/keyrings/mongodb-server-6.0.gpg > /dev/null && \
+    echo "deb [signed-by=/etc/apt/keyrings/mongodb-server-6.0.gpg] https://repo.mongodb.org/apt/debian bookworm/mongodb-org/6.0 main" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list && \
     apt-get update && apt-get install -y mongodb-org && \
     rm -rf /var/lib/apt/lists/*
 
