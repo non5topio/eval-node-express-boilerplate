@@ -41,8 +41,8 @@ EXPOSE 3000
 EXPOSE 27017  
 
 CMD mongod --bind_ip_all --logpath /var/log/mongodb/mongodb.log --dbpath /data/db --fork && \
-    sleep 5 && \
-    until mongosh --eval "db.runCommand({ ping: 1 })" > /dev/null 2>&1; do sleep 1; done && \
+    # sleep 5 && \
+    # until mongosh --eval "db.runCommand({ ping: 1 })" > /dev/null 2>&1; do sleep 1; done && \
     yarn start
 # Final image (optional, if needed)
 # FROM node:alpine AS final
