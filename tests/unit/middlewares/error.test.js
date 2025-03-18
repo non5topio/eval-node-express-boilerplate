@@ -164,5 +164,45 @@ describe('Error middlewares', () => {
       );
       config.env = process.env.NODE_ENV;
     });
+
+    test('should handle error objects with circular references without throwing exceptions', () => {
+      const error = new Error('Circular error');
+      error.statusCode = httpStatus.BAD_REQUEST;
+      error.self = error; // Creating a circular reference
+      const req = httpMocks.createRequest();
+      const res = httpMocks.createResponse();
+      const next = jest.fn();
+    
+      expect(() => {
+        errorConverter(error, req, res, next);
+      }).not.toThrow();
+    
+      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+      const convertedError = next.mock.calls[0][0];
+      expect(convertedError.statusCode).toBe(httpStatus.BAD_REQUEST);
+      expect(convertedError.message).toBe(error.message);
+    });
+
+
+    test('should not expose stack trace in production environment for non-operational errors', () => {
+      config.env = 'production';
+      const error = new ApiError(httpStatus.BAD_REQUEST, 'Any error', false);
+      const req = httpMocks.createRequest();
+      const res = httpMocks.createResponse();
+      const sendSpy = jest.spyOn(res, 'send');
+    
+      errorHandler(error, req, res);
+    
+      expect(sendSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: httpStatus.INTERNAL_SERVER_ERROR,
+          message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+        })
+      );
+      expect(res.locals.errorMessage).toBe(error.message);
+      expect(res._getData()).not.toHaveProperty('stack');
+      config.env = process.env.NODE_ENV;
+    });
+
   });
 });

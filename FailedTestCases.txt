@@ -1,0 +1,1001 @@
+
+test('should convert null error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = null;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert null error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = null;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert undefined error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = undefined;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert null error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = null;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert undefined error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = undefined;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert error without stack to ApiError correctly', () => {
+  const error = new Error('Error without stack');
+  error.statusCode = httpStatus.NOT_FOUND;
+  delete error.stack;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.NOT_FOUND);
+  expect(convertedError.message).toBe('Error without stack');
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert null error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = null;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert undefined error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = undefined;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert error without stack to ApiError correctly', () => {
+  const error = new Error('Error without stack');
+  error.statusCode = httpStatus.NOT_FOUND;
+  delete error.stack;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.NOT_FOUND);
+  expect(convertedError.message).toBe('Error without stack');
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+describe('Error handler', () => {
+  test('should handle null error input in errorHandler', () => {
+    const error = null;
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+    const sendSpy = jest.spyOn(res, 'send');
+
+    errorHandler(error, req, res);
+
+    expect(res.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+    expect(sendSpy).toHaveBeenCalledWith({
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+    });
+    expect(res.locals.errorMessage).toBeUndefined();
+  });
+});
+
+
+
+test('should convert null error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = null;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert undefined error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = undefined;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert error without stack to ApiError correctly', () => {
+  const error = new Error('Error without stack');
+  error.statusCode = httpStatus.NOT_FOUND;
+  delete error.stack;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.NOT_FOUND);
+  expect(convertedError.message).toBe('Error without stack');
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+describe('Error handler', () => {
+  test('should handle null error input in errorHandler', () => {
+    const error = null;
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+    const sendSpy = jest.spyOn(res, 'send');
+
+    errorHandler(error, req, res);
+
+    expect(res.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+    expect(sendSpy).toHaveBeenCalledWith({
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+    });
+    expect(res.locals.errorMessage).toBeUndefined();
+  });
+});
+
+
+
+describe('Error handler', () => {
+  test('should handle undefined error input in errorHandler', () => {
+    const error = undefined;
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+    const sendSpy = jest.spyOn(res, 'send');
+
+    errorHandler(error, req, res);
+
+    expect(res.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+    expect(sendSpy).toHaveBeenCalledWith({
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+    });
+    expect(res.locals.errorMessage).toBeUndefined();
+  });
+});
+
+
+
+test('should convert null error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = null;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert undefined error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = undefined;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert error without stack to ApiError correctly', () => {
+  const error = new Error('Error without stack');
+  error.statusCode = httpStatus.NOT_FOUND;
+  delete error.stack;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.NOT_FOUND);
+  expect(convertedError.message).toBe('Error without stack');
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+describe('Error handler', () => {
+  test('should handle null error input in errorHandler', () => {
+    const error = null;
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+    const sendSpy = jest.spyOn(res, 'send');
+
+    errorHandler(error, req, res);
+
+    expect(res.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+    expect(sendSpy).toHaveBeenCalledWith({
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+    });
+    expect(res.locals.errorMessage).toBeUndefined();
+  });
+});
+
+
+
+describe('Error handler', () => {
+  test('should handle undefined error input in errorHandler', () => {
+    const error = undefined;
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+    const sendSpy = jest.spyOn(res, 'send');
+
+    errorHandler(error, req, res);
+
+    expect(res.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+    expect(sendSpy).toHaveBeenCalledWith({
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+    });
+    expect(res.locals.errorMessage).toBeUndefined();
+  });
+});
+
+
+
+test('should handle error with non-standard status code in errorConverter', () => {
+  const error = new Error('Non-standard status code');
+  error.statusCode = 999;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(999);
+  expect(convertedError.message).toBe('Non-standard status code');
+  expect(convertedError.isOperational).toBe(false);
+});
+
+
+
+test('should convert null error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = null;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert undefined error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = undefined;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert error without stack to ApiError correctly', () => {
+  const error = new Error('Error without stack');
+  error.statusCode = httpStatus.NOT_FOUND;
+  delete error.stack;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.NOT_FOUND);
+  expect(convertedError.message).toBe('Error without stack');
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+describe('Error handler', () => {
+  test('should handle null error input in errorHandler', () => {
+    const error = null;
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+    const sendSpy = jest.spyOn(res, 'send');
+
+    errorHandler(error, req, res);
+
+    expect(res.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+    expect(sendSpy).toHaveBeenCalledWith({
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+    });
+    expect(res.locals.errorMessage).toBeUndefined();
+  });
+});
+
+
+
+describe('Error handler', () => {
+  test('should handle undefined error input in errorHandler', () => {
+    const error = undefined;
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+    const sendSpy = jest.spyOn(res, 'send');
+
+    errorHandler(error, req, res);
+
+    expect(res.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+    expect(sendSpy).toHaveBeenCalledWith({
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+    });
+    expect(res.locals.errorMessage).toBeUndefined();
+  });
+});
+
+
+
+test('should handle error with non-standard status code in errorConverter', () => {
+  const error = new Error('Non-standard status code');
+  error.statusCode = 999;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(999);
+  expect(convertedError.message).toBe('Non-standard status code');
+  expect(convertedError.isOperational).toBe(false);
+});
+
+
+
+test('should convert null error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = null;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert null error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = null;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert undefined error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = undefined;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert error without stack to ApiError correctly', () => {
+  const error = new Error('Error without stack');
+  error.statusCode = httpStatus.NOT_FOUND;
+  delete error.stack;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.NOT_FOUND);
+  expect(convertedError.message).toBe('Error without stack');
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+describe('Error handler', () => {
+  test('should handle null error input in errorHandler', () => {
+    const error = null;
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+    const sendSpy = jest.spyOn(res, 'send');
+
+    errorHandler(error, req, res);
+
+    expect(res.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+    expect(sendSpy).toHaveBeenCalledWith({
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+    });
+    expect(res.locals.errorMessage).toBeUndefined();
+  });
+});
+
+
+
+describe('Error handler', () => {
+  test('should handle undefined error input in errorHandler', () => {
+    const error = undefined;
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+    const sendSpy = jest.spyOn(res, 'send');
+
+    errorHandler(error, req, res);
+
+    expect(res.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+    expect(sendSpy).toHaveBeenCalledWith({
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+    });
+    expect(res.locals.errorMessage).toBeUndefined();
+  });
+});
+
+
+
+test('should handle error with non-standard status code in errorConverter', () => {
+  const error = new Error('Non-standard status code');
+  error.statusCode = 999;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(999);
+  expect(convertedError.message).toBe('Non-standard status code');
+  expect(convertedError.isOperational).toBe(false);
+});
+
+
+
+test('should convert null error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = null;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert undefined error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = undefined;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert null error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = null;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert undefined error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = undefined;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert error without stack to ApiError correctly', () => {
+  const error = new Error('Error without stack');
+  error.statusCode = httpStatus.NOT_FOUND;
+  delete error.stack;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.NOT_FOUND);
+  expect(convertedError.message).toBe('Error without stack');
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+describe('Error handler', () => {
+  test('should handle null error input in errorHandler', () => {
+    const error = null;
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+    const sendSpy = jest.spyOn(res, 'send');
+
+    errorHandler(error, req, res);
+
+    expect(res.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+    expect(sendSpy).toHaveBeenCalledWith({
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+    });
+    expect(res.locals.errorMessage).toBeUndefined();
+  });
+});
+
+
+
+describe('Error handler', () => {
+  test('should handle undefined error input in errorHandler', () => {
+    const error = undefined;
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+    const sendSpy = jest.spyOn(res, 'send');
+
+    errorHandler(error, req, res);
+
+    expect(res.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+    expect(sendSpy).toHaveBeenCalledWith({
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+    });
+    expect(res.locals.errorMessage).toBeUndefined();
+  });
+});
+
+
+
+test('should handle error with non-standard status code in errorConverter', () => {
+  const error = new Error('Non-standard status code');
+  error.statusCode = 999;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(999);
+  expect(convertedError.message).toBe('Non-standard status code');
+  expect(convertedError.isOperational).toBe(false);
+});
+
+
+
+test('should convert null error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = null;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert undefined error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = undefined;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert non-error object to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = "Simple error string";
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert null error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = null;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert undefined error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = undefined;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert error without stack to ApiError correctly', () => {
+  const error = new Error('Error without stack');
+  error.statusCode = httpStatus.NOT_FOUND;
+  delete error.stack;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.NOT_FOUND);
+  expect(convertedError.message).toBe('Error without stack');
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+describe('Error handler', () => {
+  test('should handle null error input in errorHandler', () => {
+    const error = null;
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+    const sendSpy = jest.spyOn(res, 'send');
+
+    errorHandler(error, req, res);
+
+    expect(res.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+    expect(sendSpy).toHaveBeenCalledWith({
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+    });
+    expect(res.locals.errorMessage).toBeUndefined();
+  });
+});
+
+
+
+describe('Error handler', () => {
+  test('should handle undefined error input in errorHandler', () => {
+    const error = undefined;
+    const req = httpMocks.createRequest();
+    const res = httpMocks.createResponse();
+    const sendSpy = jest.spyOn(res, 'send');
+
+    errorHandler(error, req, res);
+
+    expect(res.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+    expect(sendSpy).toHaveBeenCalledWith({
+      code: httpStatus.INTERNAL_SERVER_ERROR,
+      message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+    });
+    expect(res.locals.errorMessage).toBeUndefined();
+  });
+});
+
+
+
+test('should handle error with non-standard status code in errorConverter', () => {
+  const error = new Error('Non-standard status code');
+  error.statusCode = 999;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(999);
+  expect(convertedError.message).toBe('Non-standard status code');
+  expect(convertedError.isOperational).toBe(false);
+});
+
+
+
+test('should convert null error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = null;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert undefined error to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = undefined;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should convert non-error object to ApiError with INTERNAL_SERVER_ERROR status', () => {
+  const error = "Simple error string";
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const next = jest.fn();
+
+  errorConverter(error, req, res, next);
+
+  expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+  const convertedError = next.mock.calls[0][0];
+  expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+  expect(convertedError.message).toBe(httpStatus[httpStatus.INTERNAL_SERVER_ERROR]);
+  expect(convertedError.stack).toBeUndefined();
+});
+
+
+
+test('should handle extremely long error messages and stack traces without crashing', () => {
+  const longMessage = 'a'.repeat(10000);
+  const longStack = 'b'.repeat(10000);
+  const error = new ApiError(httpStatus.BAD_REQUEST, longMessage, false);
+  error.stack = longStack;
+  const req = httpMocks.createRequest();
+  const res = httpMocks.createResponse();
+  const sendSpy = jest.spyOn(res, 'send');
+
+  errorHandler(error, req, res);
+
+  expect(sendSpy).toHaveBeenCalledWith(
+    expect.objectContaining({
+      code: error.statusCode,
+      message: error.message,
+      stack: error.stack,
+    })
+  );
+  expect(res.locals.errorMessage).toBe(error.message);
+});
+
+
