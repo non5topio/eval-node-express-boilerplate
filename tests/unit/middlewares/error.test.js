@@ -274,6 +274,261 @@ describe('Error middlewares', () => {
     // });
 
 
+    test('should call logger.error in development mode', () => {
+      const originalEnv = config.env;
+      config.env = 'development';
+      
+      const loggerSpy = jest.spyOn(logger, 'error');
+      const error = new ApiError(httpStatus.BAD_REQUEST, 'Test error');
+      const req = httpMocks.createRequest();
+      const res = httpMocks.createResponse();
+      
+      errorHandler(error, req, res);
+      
+      expect(loggerSpy).toHaveBeenCalledWith(error);
+      
+      // Restore original environment
+      config.env = originalEnv;
+    });
+
+
+    test('should not expose sensitive information in production environment', () => {
+      const originalEnv = config.env;
+      config.env = 'production';
+      
+      const sensitiveMessage = "Sensitive data: user password 12345";
+      const error = new ApiError(httpStatus.BAD_REQUEST, sensitiveMessage, false);
+      const req = httpMocks.createRequest();
+      const res = httpMocks.createResponse();
+      const sendSpy = jest.spyOn(res, 'send');
+    
+      errorHandler(error, req, res);
+    
+      expect(sendSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: httpStatus.INTERNAL_SERVER_ERROR,
+          message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+        })
+      );
+      expect(res.locals.errorMessage).toBe(sensitiveMessage);
+      expect(res._getData()).not.toHaveProperty('stack');
+      
+      // Restore original environment
+      config.env = originalEnv;
+    });
+
+
+    test('should send raw XSS payload in error message and highlight need for sanitization', () => {
+      const originalEnv = config.env;
+      config.env = 'development';
+      
+      const xssMessage = "<script>alert('XSS')</script>";
+      const error = new ApiError(httpStatus.BAD_REQUEST, xssMessage);
+      const req = httpMocks.createRequest();
+      const res = httpMocks.createResponse();
+      const sendSpy = jest.spyOn(res, 'send');
+    
+      errorHandler(error, req, res);
+    
+      expect(sendSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: error.statusCode,
+          message: error.message,
+          stack: error.stack,
+        })
+      );
+      expect(res.locals.errorMessage).toBe(xssMessage);
+      
+      // Restore original environment
+      config.env = originalEnv;
+    });
+
+
+    test('should preserve error status and message in unrecognized environment in errorHandler', () => {
+      const originalEnv = config.env;
+      config.env = 'staging'; // Unrecognized environment
+      
+      const error = new ApiError(httpStatus.BAD_REQUEST, 'Bad Request');
+      const req = httpMocks.createRequest();
+      const res = httpMocks.createResponse();
+      const sendSpy = jest.spyOn(res, 'send');
+    
+      errorHandler(error, req, res);
+    
+      expect(sendSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: error.statusCode,
+          message: error.message,
+        })
+      );
+      expect(res.locals.errorMessage).toBe(error.message);
+      expect(res._getData()).not.toHaveProperty('stack');
+      
+      // Restore original environment
+      config.env = originalEnv;
+    });
+
+
+    test('should convert non-object errors to ApiError in errorConverter', () => {
+      const testCases = [
+        { error: 404, expectedMessage: httpStatus[httpStatus.INTERNAL_SERVER_ERROR] },
+        { error: "Error message", expectedMessage: httpStatus[httpStatus.INTERNAL_SERVER_ERROR] }
+      ];
+      
+      testCases.forEach(({ error, expectedMessage }) => {
+        const req = httpMocks.createRequest();
+        const res = httpMocks.createResponse();
+        const next = jest.fn();
+        
+        errorConverter(error, req, res, next);
+        
+        expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+        const convertedError = next.mock.calls[0][0];
+        expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+        expect(convertedError.message).toBe(expectedMessage);
+        expect(convertedError.isOperational).toBe(false);
+        
+        next.mockClear();
+      });
+    });
+
+
+    test('should handle error objects with circular references without throwing exceptions', () => {
+      const error = new Error('Circular error');
+      error.statusCode = httpStatus.BAD_REQUEST;
+      error.self = error; // Creating a circular reference
+      const req = httpMocks.createRequest();
+      const res = httpMocks.createResponse();
+      const next = jest.fn();
+    
+      expect(() => {
+        errorConverter(error, req, res, next);
+      }).not.toThrow();
+    
+      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+      const convertedError = next.mock.calls[0][0];
+      expect(convertedError.statusCode).toBe(httpStatus.BAD_REQUEST);
+      expect(convertedError.message).toBe(error.message);
+    });
+
+
+    test('should not expose sensitive information in production environment', () => {
+      const originalEnv = config.env;
+      config.env = 'production';
+      
+      const sensitiveMessage = "Sensitive data: user password 12345";
+      const error = new ApiError(httpStatus.BAD_REQUEST, sensitiveMessage, false);
+      const req = httpMocks.createRequest();
+      const res = httpMocks.createResponse();
+      const sendSpy = jest.spyOn(res, 'send');
+    
+      errorHandler(error, req, res);
+    
+      expect(sendSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: httpStatus.INTERNAL_SERVER_ERROR,
+          message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+        })
+      );
+      expect(res.locals.errorMessage).toBe(sensitiveMessage);
+      expect(res._getData()).not.toHaveProperty('stack');
+      
+      // Restore original environment
+      config.env = originalEnv;
+    });
+
+
+    test('should send raw XSS payload in error message and highlight need for sanitization', () => {
+      const originalEnv = config.env;
+      config.env = 'development';
+      
+      const xssMessage = "<script>alert('XSS')</script>";
+      const error = new ApiError(httpStatus.BAD_REQUEST, xssMessage);
+      const req = httpMocks.createRequest();
+      const res = httpMocks.createResponse();
+      const sendSpy = jest.spyOn(res, 'send');
+    
+      errorHandler(error, req, res);
+    
+      expect(sendSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: error.statusCode,
+          message: error.message,
+          stack: error.stack,
+        })
+      );
+      expect(res.locals.errorMessage).toBe(xssMessage);
+      
+      // Restore original environment
+      config.env = originalEnv;
+    });
+
+
+    test('should preserve error status and message in unrecognized environment in errorHandler', () => {
+      const originalEnv = config.env;
+      config.env = 'staging'; // Unrecognized environment
+      
+      const error = new ApiError(httpStatus.BAD_REQUEST, 'Bad Request');
+      const req = httpMocks.createRequest();
+      const res = httpMocks.createResponse();
+      const sendSpy = jest.spyOn(res, 'send');
+    
+      errorHandler(error, req, res);
+    
+      expect(sendSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: error.statusCode,
+          message: error.message,
+        })
+      );
+      expect(res.locals.errorMessage).toBe(error.message);
+      expect(res._getData()).not.toHaveProperty('stack');
+      
+      // Restore original environment
+      config.env = originalEnv;
+    });
+
+
+    test('should handle errors with deeply nested properties in errorConverter', () => {
+      const deepNestedError = new Error('Deep nested error');
+      let current = deepNestedError;
+      for (let i = 0; i < 15; i++) {
+        current.nested = { level: i };
+        current = current.nested;
+      }
+      const req = httpMocks.createRequest();
+      const res = httpMocks.createResponse();
+      const next = jest.fn();
+    
+      errorConverter(deepNestedError, req, res, next);
+    
+      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+      const convertedError = next.mock.calls[0][0];
+      expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+      expect(convertedError.message).toBe(deepNestedError.message);
+      expect(convertedError.isOperational).toBe(false);
+    });
+
+
+    test('should handle error objects with circular references without throwing exceptions', () => {
+      const error = new Error('Circular error');
+      error.statusCode = httpStatus.BAD_REQUEST;
+      error.self = error; // Creating a circular reference
+      const req = httpMocks.createRequest();
+      const res = httpMocks.createResponse();
+      const next = jest.fn();
+    
+      expect(() => {
+        errorConverter(error, req, res, next);
+      }).not.toThrow();
+    
+      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+      const convertedError = next.mock.calls[0][0];
+      expect(convertedError.statusCode).toBe(httpStatus.BAD_REQUEST);
+      expect(convertedError.message).toBe(error.message);
+    });
+
+
     // test('should preserve error status and message in unrecognized environment in errorHandler', () => {
     //   const error = new ApiError(httpStatus.BAD_REQUEST, 'Bad Request');
     //   const req = httpMocks.createRequest();
