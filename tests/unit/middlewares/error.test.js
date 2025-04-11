@@ -582,4 +582,97 @@ describe('Error middlewares', () => {
     //   expect(convertedError.isOperational).toBe(false);
     // });
   });
+
+    test('should use custom non-standard HTTP status code in response', () => {
+      const customStatusCode = 499; // Non-standard status code
+      const error = new ApiError(customStatusCode, 'Custom error');
+      const res = httpMocks.createResponse();
+      const sendSpy = jest.spyOn(res, 'send');
+      const statusSpy = jest.spyOn(res, 'status');
+    
+      errorHandler(error, httpMocks.createRequest(), res);
+    
+      expect(statusSpy).toHaveBeenCalledWith(customStatusCode);
+      expect(sendSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: customStatusCode,
+          message: error.message,
+        })
+      );
+    });
+
+
+    test('should handle error with extremely long message without truncation', () => {
+      const longMessage = 'a'.repeat(10000);
+      const error = new Error(longMessage);
+      const next = jest.fn();
+    
+      errorConverter(error, httpMocks.createRequest(), httpMocks.createResponse(), next);
+    
+      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({
+          statusCode: httpStatus.INTERNAL_SERVER_ERROR,
+          message: longMessage,
+          isOperational: false,
+        })
+      );
+    });
+
+
+    test('should convert a mongoose validation error to ApiError with status 400 and preserve its message', () => {
+      const validationError = new mongoose.Error.ValidationError();
+      validationError.message = 'Custom validation failed';
+      const next = jest.fn();
+    
+      errorConverter(validationError, httpMocks.createRequest(), httpMocks.createResponse(), next);
+    
+      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({
+          statusCode: httpStatus.BAD_REQUEST,
+          message: validationError.message,
+          isOperational: false,
+        })
+      );
+    });
+
+
+    test('should handle error with null message and valid statusCode', () => {
+      const error = new Error();
+      error.message = null;
+      error.statusCode = httpStatus.BAD_REQUEST;
+      const next = jest.fn();
+    
+      errorConverter(error, httpMocks.createRequest(), httpMocks.createResponse(), next);
+    
+      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({
+          statusCode: error.statusCode,
+          message: httpStatus[error.statusCode],
+          isOperational: false,
+        })
+      );
+    });
+
+
+    test('should handle error with undefined message and statusCode', () => {
+      const error = new Error();
+      error.message = undefined;
+      error.statusCode = undefined;
+      const next = jest.fn();
+    
+      errorConverter(error, httpMocks.createRequest(), httpMocks.createResponse(), next);
+    
+      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({
+          statusCode: httpStatus.INTERNAL_SERVER_ERROR,
+          message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+          isOperational: false,
+        })
+      );
+    });
+
 });
