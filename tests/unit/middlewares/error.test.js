@@ -165,6 +165,82 @@ describe('Error middlewares', () => {
       config.env = process.env.NODE_ENV;
     });
 
+    test('should handle non-numeric statusCode in ApiError', () => {
+      // We expect res.status() to coerce or handle non-numeric types.
+      // Node's http response.writeHead allows string status codes if they parse to numbers.
+      // Let's test with a string that *can* be parsed.
+      const error = new ApiError('418', "I'm a teapot"); // Use string status code
+      const res = httpMocks.createResponse();
+      const statusSpy = jest.spyOn(res, 'status');
+      const sendSpy = jest.spyOn(res, 'send');
+      config.env = 'development'; // Ensure message isn't overridden
+    
+      errorHandler(error, httpMocks.createRequest(), res);
+    
+      // Check if res.status was called with the potentially coerced value
+      // Note: httpMocks might handle this differently than native Node, but we test the call.
+      // Jest's `toHaveBeenCalledWith` checks type, so '418' won't match 418 directly.
+      // We check the *intent* was to set the status based on the error's statusCode.
+      // In a real Node environment, `res.status('418')` would likely work.
+      // Let's assert the value passed to status was the string '418'.
+      expect(statusSpy).toHaveBeenCalledWith('418');
+    
+      // Check if the response body contains the original non-numeric code
+      expect(sendSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: '418', // The original non-numeric code
+          message: error.message,
+        })
+      );
+    
+      config.env = process.env.NODE_ENV; // Restore env
+    });
+
+
+    test('should default to 500 when statusCode is undefined', () => {
+      const error = new Error('Some error');
+      error.statusCode = undefined; // Explicitly set statusCode to undefined
+      const next = jest.fn();
+    
+      errorConverter(error, httpMocks.createRequest(), httpMocks.createResponse(), next);
+    
+      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({
+          statusCode: httpStatus.INTERNAL_SERVER_ERROR, // Expect default 500
+          message: error.message,
+          isOperational: false,
+        })
+      );
+    });
+
+
+    test('should handle circular references in error objects', () => {
+      const error = new Error('Circular error');
+      error.statusCode = httpStatus.BAD_REQUEST;
+      error.self = error; // Create a circular reference
+      const next = jest.fn();
+    
+      // Expect the conversion process itself not to throw due to circular ref
+      expect(() => {
+        errorConverter(error, httpMocks.createRequest(), httpMocks.createResponse(), next);
+      }).not.toThrow();
+    
+      // Check if next was called with an ApiError
+      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+      // Check if the ApiError has the expected properties derived from the original error
+      expect(next).toHaveBeenCalledWith(
+        expect.objectContaining({
+          statusCode: error.statusCode,
+          message: error.message,
+          isOperational: false,
+        })
+      );
+      // Ensure the stack trace is captured (might be affected by circular ref, but should exist)
+      expect(next.mock.calls[0][0].stack).toBeDefined();
+    });
+
+
     // test('should handle error objects with circular references without throwing exceptions', () => {
     //   const error = new Error('Circular error');
     //   error.statusCode = httpStatus.BAD_REQUEST;
