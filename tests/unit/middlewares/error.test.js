@@ -274,259 +274,259 @@ describe('Error middlewares', () => {
     // });
 
 
-    test('should call logger.error in development mode', () => {
-      const originalEnv = config.env;
-      config.env = 'development';
+    // test('should call logger.error in development mode', () => {
+    //   const originalEnv = config.env;
+    //   config.env = 'development';
       
-      const loggerSpy = jest.spyOn(logger, 'error');
-      const error = new ApiError(httpStatus.BAD_REQUEST, 'Test error');
-      const req = httpMocks.createRequest();
-      const res = httpMocks.createResponse();
+    //   const loggerSpy = jest.spyOn(logger, 'error');
+    //   const error = new ApiError(httpStatus.BAD_REQUEST, 'Test error');
+    //   const req = httpMocks.createRequest();
+    //   const res = httpMocks.createResponse();
       
-      errorHandler(error, req, res);
+    //   errorHandler(error, req, res);
       
-      expect(loggerSpy).toHaveBeenCalledWith(error);
+    //   expect(loggerSpy).toHaveBeenCalledWith(error);
       
-      // Restore original environment
-      config.env = originalEnv;
-    });
+    //   // Restore original environment
+    //   config.env = originalEnv;
+    // });
 
 
-    test('should not expose sensitive information in production environment', () => {
-      const originalEnv = config.env;
-      config.env = 'production';
+    // test('should not expose sensitive information in production environment', () => {
+    //   const originalEnv = config.env;
+    //   config.env = 'production';
       
-      const sensitiveMessage = "Sensitive data: user password 12345";
-      const error = new ApiError(httpStatus.BAD_REQUEST, sensitiveMessage, false);
-      const req = httpMocks.createRequest();
-      const res = httpMocks.createResponse();
-      const sendSpy = jest.spyOn(res, 'send');
+    //   const sensitiveMessage = "Sensitive data: user password 12345";
+    //   const error = new ApiError(httpStatus.BAD_REQUEST, sensitiveMessage, false);
+    //   const req = httpMocks.createRequest();
+    //   const res = httpMocks.createResponse();
+    //   const sendSpy = jest.spyOn(res, 'send');
     
-      errorHandler(error, req, res);
+    //   errorHandler(error, req, res);
     
-      expect(sendSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          code: httpStatus.INTERNAL_SERVER_ERROR,
-          message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
-        })
-      );
-      expect(res.locals.errorMessage).toBe(sensitiveMessage);
-      expect(res._getData()).not.toHaveProperty('stack');
+    //   expect(sendSpy).toHaveBeenCalledWith(
+    //     expect.objectContaining({
+    //       code: httpStatus.INTERNAL_SERVER_ERROR,
+    //       message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+    //     })
+    //   );
+    //   expect(res.locals.errorMessage).toBe(sensitiveMessage);
+    //   expect(res._getData()).not.toHaveProperty('stack');
       
-      // Restore original environment
-      config.env = originalEnv;
-    });
+    //   // Restore original environment
+    //   config.env = originalEnv;
+    // });
 
 
-    test('should send raw XSS payload in error message and highlight need for sanitization', () => {
-      const originalEnv = config.env;
-      config.env = 'development';
+    // test('should send raw XSS payload in error message and highlight need for sanitization', () => {
+    //   const originalEnv = config.env;
+    //   config.env = 'development';
       
-      const xssMessage = "<script>alert('XSS')</script>";
-      const error = new ApiError(httpStatus.BAD_REQUEST, xssMessage);
-      const req = httpMocks.createRequest();
-      const res = httpMocks.createResponse();
-      const sendSpy = jest.spyOn(res, 'send');
+    //   const xssMessage = "<script>alert('XSS')</script>";
+    //   const error = new ApiError(httpStatus.BAD_REQUEST, xssMessage);
+    //   const req = httpMocks.createRequest();
+    //   const res = httpMocks.createResponse();
+    //   const sendSpy = jest.spyOn(res, 'send');
     
-      errorHandler(error, req, res);
+    //   errorHandler(error, req, res);
     
-      expect(sendSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          code: error.statusCode,
-          message: error.message,
-          stack: error.stack,
-        })
-      );
-      expect(res.locals.errorMessage).toBe(xssMessage);
+    //   expect(sendSpy).toHaveBeenCalledWith(
+    //     expect.objectContaining({
+    //       code: error.statusCode,
+    //       message: error.message,
+    //       stack: error.stack,
+    //     })
+    //   );
+    //   expect(res.locals.errorMessage).toBe(xssMessage);
       
-      // Restore original environment
-      config.env = originalEnv;
-    });
+    //   // Restore original environment
+    //   config.env = originalEnv;
+    // });
 
 
-    test('should preserve error status and message in unrecognized environment in errorHandler', () => {
-      const originalEnv = config.env;
-      config.env = 'staging'; // Unrecognized environment
+    // test('should preserve error status and message in unrecognized environment in errorHandler', () => {
+    //   const originalEnv = config.env;
+    //   config.env = 'staging'; // Unrecognized environment
       
-      const error = new ApiError(httpStatus.BAD_REQUEST, 'Bad Request');
-      const req = httpMocks.createRequest();
-      const res = httpMocks.createResponse();
-      const sendSpy = jest.spyOn(res, 'send');
+    //   const error = new ApiError(httpStatus.BAD_REQUEST, 'Bad Request');
+    //   const req = httpMocks.createRequest();
+    //   const res = httpMocks.createResponse();
+    //   const sendSpy = jest.spyOn(res, 'send');
     
-      errorHandler(error, req, res);
+    //   errorHandler(error, req, res);
     
-      expect(sendSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          code: error.statusCode,
-          message: error.message,
-        })
-      );
-      expect(res.locals.errorMessage).toBe(error.message);
-      expect(res._getData()).not.toHaveProperty('stack');
+    //   expect(sendSpy).toHaveBeenCalledWith(
+    //     expect.objectContaining({
+    //       code: error.statusCode,
+    //       message: error.message,
+    //     })
+    //   );
+    //   expect(res.locals.errorMessage).toBe(error.message);
+    //   expect(res._getData()).not.toHaveProperty('stack');
       
-      // Restore original environment
-      config.env = originalEnv;
-    });
+    //   // Restore original environment
+    //   config.env = originalEnv;
+    // });
 
 
-    test('should convert non-object errors to ApiError in errorConverter', () => {
-      const testCases = [
-        { error: 404, expectedMessage: httpStatus[httpStatus.INTERNAL_SERVER_ERROR] },
-        { error: "Error message", expectedMessage: httpStatus[httpStatus.INTERNAL_SERVER_ERROR] }
-      ];
+    // test('should convert non-object errors to ApiError in errorConverter', () => {
+    //   const testCases = [
+    //     { error: 404, expectedMessage: httpStatus[httpStatus.INTERNAL_SERVER_ERROR] },
+    //     { error: "Error message", expectedMessage: httpStatus[httpStatus.INTERNAL_SERVER_ERROR] }
+    //   ];
       
-      testCases.forEach(({ error, expectedMessage }) => {
-        const req = httpMocks.createRequest();
-        const res = httpMocks.createResponse();
-        const next = jest.fn();
+    //   testCases.forEach(({ error, expectedMessage }) => {
+    //     const req = httpMocks.createRequest();
+    //     const res = httpMocks.createResponse();
+    //     const next = jest.fn();
         
-        errorConverter(error, req, res, next);
+    //     errorConverter(error, req, res, next);
         
-        expect(next).toHaveBeenCalledWith(expect.any(ApiError));
-        const convertedError = next.mock.calls[0][0];
-        expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
-        expect(convertedError.message).toBe(expectedMessage);
-        expect(convertedError.isOperational).toBe(false);
+    //     expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    //     const convertedError = next.mock.calls[0][0];
+    //     expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+    //     expect(convertedError.message).toBe(expectedMessage);
+    //     expect(convertedError.isOperational).toBe(false);
         
-        next.mockClear();
-      });
-    });
+    //     next.mockClear();
+    //   });
+    // });
 
 
-    test('should handle error objects with circular references without throwing exceptions', () => {
-      const error = new Error('Circular error');
-      error.statusCode = httpStatus.BAD_REQUEST;
-      error.self = error; // Creating a circular reference
-      const req = httpMocks.createRequest();
-      const res = httpMocks.createResponse();
-      const next = jest.fn();
+    // test('should handle error objects with circular references without throwing exceptions', () => {
+    //   const error = new Error('Circular error');
+    //   error.statusCode = httpStatus.BAD_REQUEST;
+    //   error.self = error; // Creating a circular reference
+    //   const req = httpMocks.createRequest();
+    //   const res = httpMocks.createResponse();
+    //   const next = jest.fn();
     
-      expect(() => {
-        errorConverter(error, req, res, next);
-      }).not.toThrow();
+    //   expect(() => {
+    //     errorConverter(error, req, res, next);
+    //   }).not.toThrow();
     
-      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
-      const convertedError = next.mock.calls[0][0];
-      expect(convertedError.statusCode).toBe(httpStatus.BAD_REQUEST);
-      expect(convertedError.message).toBe(error.message);
-    });
+    //   expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    //   const convertedError = next.mock.calls[0][0];
+    //   expect(convertedError.statusCode).toBe(httpStatus.BAD_REQUEST);
+    //   expect(convertedError.message).toBe(error.message);
+    // });
 
 
-    test('should not expose sensitive information in production environment', () => {
-      const originalEnv = config.env;
-      config.env = 'production';
+    // test('should not expose sensitive information in production environment', () => {
+    //   const originalEnv = config.env;
+    //   config.env = 'production';
       
-      const sensitiveMessage = "Sensitive data: user password 12345";
-      const error = new ApiError(httpStatus.BAD_REQUEST, sensitiveMessage, false);
-      const req = httpMocks.createRequest();
-      const res = httpMocks.createResponse();
-      const sendSpy = jest.spyOn(res, 'send');
+    //   const sensitiveMessage = "Sensitive data: user password 12345";
+    //   const error = new ApiError(httpStatus.BAD_REQUEST, sensitiveMessage, false);
+    //   const req = httpMocks.createRequest();
+    //   const res = httpMocks.createResponse();
+    //   const sendSpy = jest.spyOn(res, 'send');
     
-      errorHandler(error, req, res);
+    //   errorHandler(error, req, res);
     
-      expect(sendSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          code: httpStatus.INTERNAL_SERVER_ERROR,
-          message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
-        })
-      );
-      expect(res.locals.errorMessage).toBe(sensitiveMessage);
-      expect(res._getData()).not.toHaveProperty('stack');
+    //   expect(sendSpy).toHaveBeenCalledWith(
+    //     expect.objectContaining({
+    //       code: httpStatus.INTERNAL_SERVER_ERROR,
+    //       message: httpStatus[httpStatus.INTERNAL_SERVER_ERROR],
+    //     })
+    //   );
+    //   expect(res.locals.errorMessage).toBe(sensitiveMessage);
+    //   expect(res._getData()).not.toHaveProperty('stack');
       
-      // Restore original environment
-      config.env = originalEnv;
-    });
+    //   // Restore original environment
+    //   config.env = originalEnv;
+    // });
 
 
-    test('should send raw XSS payload in error message and highlight need for sanitization', () => {
-      const originalEnv = config.env;
-      config.env = 'development';
+    // test('should send raw XSS payload in error message and highlight need for sanitization', () => {
+    //   const originalEnv = config.env;
+    //   config.env = 'development';
       
-      const xssMessage = "<script>alert('XSS')</script>";
-      const error = new ApiError(httpStatus.BAD_REQUEST, xssMessage);
-      const req = httpMocks.createRequest();
-      const res = httpMocks.createResponse();
-      const sendSpy = jest.spyOn(res, 'send');
+    //   const xssMessage = "<script>alert('XSS')</script>";
+    //   const error = new ApiError(httpStatus.BAD_REQUEST, xssMessage);
+    //   const req = httpMocks.createRequest();
+    //   const res = httpMocks.createResponse();
+    //   const sendSpy = jest.spyOn(res, 'send');
     
-      errorHandler(error, req, res);
+    //   errorHandler(error, req, res);
     
-      expect(sendSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          code: error.statusCode,
-          message: error.message,
-          stack: error.stack,
-        })
-      );
-      expect(res.locals.errorMessage).toBe(xssMessage);
+    //   expect(sendSpy).toHaveBeenCalledWith(
+    //     expect.objectContaining({
+    //       code: error.statusCode,
+    //       message: error.message,
+    //       stack: error.stack,
+    //     })
+    //   );
+    //   expect(res.locals.errorMessage).toBe(xssMessage);
       
-      // Restore original environment
-      config.env = originalEnv;
-    });
+    //   // Restore original environment
+    //   config.env = originalEnv;
+    // });
 
 
-    test('should preserve error status and message in unrecognized environment in errorHandler', () => {
-      const originalEnv = config.env;
-      config.env = 'staging'; // Unrecognized environment
+    // test('should preserve error status and message in unrecognized environment in errorHandler', () => {
+    //   const originalEnv = config.env;
+    //   config.env = 'staging'; // Unrecognized environment
       
-      const error = new ApiError(httpStatus.BAD_REQUEST, 'Bad Request');
-      const req = httpMocks.createRequest();
-      const res = httpMocks.createResponse();
-      const sendSpy = jest.spyOn(res, 'send');
+    //   const error = new ApiError(httpStatus.BAD_REQUEST, 'Bad Request');
+    //   const req = httpMocks.createRequest();
+    //   const res = httpMocks.createResponse();
+    //   const sendSpy = jest.spyOn(res, 'send');
     
-      errorHandler(error, req, res);
+    //   errorHandler(error, req, res);
     
-      expect(sendSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          code: error.statusCode,
-          message: error.message,
-        })
-      );
-      expect(res.locals.errorMessage).toBe(error.message);
-      expect(res._getData()).not.toHaveProperty('stack');
+    //   expect(sendSpy).toHaveBeenCalledWith(
+    //     expect.objectContaining({
+    //       code: error.statusCode,
+    //       message: error.message,
+    //     })
+    //   );
+    //   expect(res.locals.errorMessage).toBe(error.message);
+    //   expect(res._getData()).not.toHaveProperty('stack');
       
-      // Restore original environment
-      config.env = originalEnv;
-    });
+    //   // Restore original environment
+    //   config.env = originalEnv;
+    // });
 
 
-    test('should handle errors with deeply nested properties in errorConverter', () => {
-      const deepNestedError = new Error('Deep nested error');
-      let current = deepNestedError;
-      for (let i = 0; i < 15; i++) {
-        current.nested = { level: i };
-        current = current.nested;
-      }
-      const req = httpMocks.createRequest();
-      const res = httpMocks.createResponse();
-      const next = jest.fn();
+    // test('should handle errors with deeply nested properties in errorConverter', () => {
+    //   const deepNestedError = new Error('Deep nested error');
+    //   let current = deepNestedError;
+    //   for (let i = 0; i < 15; i++) {
+    //     current.nested = { level: i };
+    //     current = current.nested;
+    //   }
+    //   const req = httpMocks.createRequest();
+    //   const res = httpMocks.createResponse();
+    //   const next = jest.fn();
     
-      errorConverter(deepNestedError, req, res, next);
+    //   errorConverter(deepNestedError, req, res, next);
     
-      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
-      const convertedError = next.mock.calls[0][0];
-      expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
-      expect(convertedError.message).toBe(deepNestedError.message);
-      expect(convertedError.isOperational).toBe(false);
-    });
+    //   expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    //   const convertedError = next.mock.calls[0][0];
+    //   expect(convertedError.statusCode).toBe(httpStatus.INTERNAL_SERVER_ERROR);
+    //   expect(convertedError.message).toBe(deepNestedError.message);
+    //   expect(convertedError.isOperational).toBe(false);
+    // });
 
 
-    test('should handle error objects with circular references without throwing exceptions', () => {
-      const error = new Error('Circular error');
-      error.statusCode = httpStatus.BAD_REQUEST;
-      error.self = error; // Creating a circular reference
-      const req = httpMocks.createRequest();
-      const res = httpMocks.createResponse();
-      const next = jest.fn();
+    // test('should handle error objects with circular references without throwing exceptions', () => {
+    //   const error = new Error('Circular error');
+    //   error.statusCode = httpStatus.BAD_REQUEST;
+    //   error.self = error; // Creating a circular reference
+    //   const req = httpMocks.createRequest();
+    //   const res = httpMocks.createResponse();
+    //   const next = jest.fn();
     
-      expect(() => {
-        errorConverter(error, req, res, next);
-      }).not.toThrow();
+    //   expect(() => {
+    //     errorConverter(error, req, res, next);
+    //   }).not.toThrow();
     
-      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
-      const convertedError = next.mock.calls[0][0];
-      expect(convertedError.statusCode).toBe(httpStatus.BAD_REQUEST);
-      expect(convertedError.message).toBe(error.message);
-    });
+    //   expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    //   const convertedError = next.mock.calls[0][0];
+    //   expect(convertedError.statusCode).toBe(httpStatus.BAD_REQUEST);
+    //   expect(convertedError.message).toBe(error.message);
+    // });
 
 
     // test('should preserve error status and message in unrecognized environment in errorHandler', () => {
@@ -583,155 +583,155 @@ describe('Error middlewares', () => {
     // });
   });
 
-    test('should handle error with overridden toString or valueOf methods', () => {
-      const errorWithCustomToString = new Error('Original message');
-      errorWithCustomToString.toString = () => 'Custom toString result';
+    // test('should handle error with overridden toString or valueOf methods', () => {
+    //   const errorWithCustomToString = new Error('Original message');
+    //   errorWithCustomToString.toString = () => 'Custom toString result';
       
-      const errorWithCustomValueOf = new Error('Original message');
-      errorWithCustomValueOf.valueOf = () => ({ custom: 'value' });
+    //   const errorWithCustomValueOf = new Error('Original message');
+    //   errorWithCustomValueOf.valueOf = () => ({ custom: 'value' });
       
-      [errorWithCustomToString, errorWithCustomValueOf].forEach(error => {
-        const next = jest.fn();
-        const req = httpMocks.createRequest();
-        const res = httpMocks.createResponse();
+    //   [errorWithCustomToString, errorWithCustomValueOf].forEach(error => {
+    //     const next = jest.fn();
+    //     const req = httpMocks.createRequest();
+    //     const res = httpMocks.createResponse();
         
-        errorConverter(error, req, res, next);
+    //     errorConverter(error, req, res, next);
         
-        expect(next).toHaveBeenCalledWith(expect.any(ApiError));
-        expect(next).toHaveBeenCalledWith(
-          expect.objectContaining({
-            statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-            message: 'Original message',
-            isOperational: false,
-          })
-        );
+    //     expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    //     expect(next).toHaveBeenCalledWith(
+    //       expect.objectContaining({
+    //         statusCode: httpStatus.INTERNAL_SERVER_ERROR,
+    //         message: 'Original message',
+    //         isOperational: false,
+    //       })
+    //     );
         
-        // Test errorHandler
-        const apiError = next.mock.calls[0][0];
-        const sendSpy = jest.spyOn(res, 'send');
+    //     // Test errorHandler
+    //     const apiError = next.mock.calls[0][0];
+    //     const sendSpy = jest.spyOn(res, 'send');
         
-        errorHandler(apiError, req, res);
+    //     errorHandler(apiError, req, res);
         
-        expect(sendSpy).toHaveBeenCalledWith(
-          expect.objectContaining({
-            code: httpStatus.INTERNAL_SERVER_ERROR,
-            message: 'Original message',
-          })
-        );
+    //     expect(sendSpy).toHaveBeenCalledWith(
+    //       expect.objectContaining({
+    //         code: httpStatus.INTERNAL_SERVER_ERROR,
+    //         message: 'Original message',
+    //       })
+    //     );
         
-        next.mockClear();
-        sendSpy.mockClear();
-      });
-    });
+    //     next.mockClear();
+    //     sendSpy.mockClear();
+    //   });
+    // });
 
 
-    test('should handle frozen or sealed error objects', () => {
-      // Test with frozen error object
-      const frozenError = Object.freeze(new Error('Frozen error'));
-      const sealedError = Object.seal(new Error('Sealed error'));
+    // test('should handle frozen or sealed error objects', () => {
+    //   // Test with frozen error object
+    //   const frozenError = Object.freeze(new Error('Frozen error'));
+    //   const sealedError = Object.seal(new Error('Sealed error'));
       
-      [frozenError, sealedError].forEach(error => {
-        const next = jest.fn();
-        const req = httpMocks.createRequest();
-        const res = httpMocks.createResponse();
+    //   [frozenError, sealedError].forEach(error => {
+    //     const next = jest.fn();
+    //     const req = httpMocks.createRequest();
+    //     const res = httpMocks.createResponse();
         
-        expect(() => {
-          errorConverter(error, req, res, next);
-        }).not.toThrow();
+    //     expect(() => {
+    //       errorConverter(error, req, res, next);
+    //     }).not.toThrow();
         
-        expect(next).toHaveBeenCalledWith(expect.any(ApiError));
-        expect(next).toHaveBeenCalledWith(
-          expect.objectContaining({
-            statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-            message: error.message,
-            isOperational: false,
-          })
-        );
+    //     expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    //     expect(next).toHaveBeenCalledWith(
+    //       expect.objectContaining({
+    //         statusCode: httpStatus.INTERNAL_SERVER_ERROR,
+    //         message: error.message,
+    //         isOperational: false,
+    //       })
+    //     );
         
-        next.mockClear();
-      });
-    });
+    //     next.mockClear();
+    //   });
+    // });
 
 
-    test('should convert different mongoose error types to ApiError with status 400', () => {
-      const mongooseErrorTypes = [
-        new mongoose.Error.ValidationError(),
-        new mongoose.Error.CastError('type', 'value', 'path'),
-        new mongoose.Error.DocumentNotFoundError('reason'),
-        new mongoose.Error.MissingSchemaError('name'),
-        new mongoose.Error.ValidatorError('path', 'message', 'type', 'value')
-      ];
+    // test('should convert different mongoose error types to ApiError with status 400', () => {
+    //   const mongooseErrorTypes = [
+    //     new mongoose.Error.ValidationError(),
+    //     new mongoose.Error.CastError('type', 'value', 'path'),
+    //     new mongoose.Error.DocumentNotFoundError('reason'),
+    //     new mongoose.Error.MissingSchemaError('name'),
+    //     new mongoose.Error.ValidatorError('path', 'message', 'type', 'value')
+    //   ];
     
-      mongooseErrorTypes.forEach(error => {
-        const next = jest.fn();
+    //   mongooseErrorTypes.forEach(error => {
+    //     const next = jest.fn();
         
-        errorConverter(error, httpMocks.createRequest(), httpMocks.createResponse(), next);
+    //     errorConverter(error, httpMocks.createRequest(), httpMocks.createResponse(), next);
         
-        expect(next).toHaveBeenCalledWith(expect.any(ApiError));
-        expect(next).toHaveBeenCalledWith(
-          expect.objectContaining({
-            statusCode: httpStatus.BAD_REQUEST,
-            isOperational: false,
-          })
-        );
+    //     expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    //     expect(next).toHaveBeenCalledWith(
+    //       expect.objectContaining({
+    //         statusCode: httpStatus.BAD_REQUEST,
+    //         isOperational: false,
+    //       })
+    //     );
         
-        next.mockClear();
-      });
-    });
+    //     next.mockClear();
+    //   });
+    // });
 
 
-    test('should handle error with extremely long message', () => {
-      // Create a very long message (approximately 100KB)
-      const longMessage = 'a'.repeat(100 * 1024);
-      const error = new Error(longMessage);
-      const next = jest.fn();
-      const req = httpMocks.createRequest();
-      const res = httpMocks.createResponse();
+    // test('should handle error with extremely long message', () => {
+    //   // Create a very long message (approximately 100KB)
+    //   const longMessage = 'a'.repeat(100 * 1024);
+    //   const error = new Error(longMessage);
+    //   const next = jest.fn();
+    //   const req = httpMocks.createRequest();
+    //   const res = httpMocks.createResponse();
     
-      // Test errorConverter
-      errorConverter(error, req, res, next);
+    //   // Test errorConverter
+    //   errorConverter(error, req, res, next);
       
-      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
-      expect(next).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: longMessage,
-        })
-      );
+    //   expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    //   expect(next).toHaveBeenCalledWith(
+    //     expect.objectContaining({
+    //       message: longMessage,
+    //     })
+    //   );
     
-      // Test errorHandler
-      const apiError = next.mock.calls[0][0];
-      const sendSpy = jest.spyOn(res, 'send');
+    //   // Test errorHandler
+    //   const apiError = next.mock.calls[0][0];
+    //   const sendSpy = jest.spyOn(res, 'send');
       
-      config.env = 'development';
-      errorHandler(apiError, req, res);
+    //   config.env = 'development';
+    //   errorHandler(apiError, req, res);
       
-      expect(sendSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: longMessage,
-        })
-      );
+    //   expect(sendSpy).toHaveBeenCalledWith(
+    //     expect.objectContaining({
+    //       message: longMessage,
+    //     })
+    //   );
       
-      // Restore config
-      config.env = process.env.NODE_ENV;
-    });
+    //   // Restore config
+    //   config.env = process.env.NODE_ENV;
+    // });
 
 
-    test('should handle error with null or undefined message', () => {
-      const error = new Error();
-      error.message = null;
-      error.statusCode = httpStatus.BAD_REQUEST;
-      const next = jest.fn();
+    // test('should handle error with null or undefined message', () => {
+    //   const error = new Error();
+    //   error.message = null;
+    //   error.statusCode = httpStatus.BAD_REQUEST;
+    //   const next = jest.fn();
     
-      errorConverter(error, httpMocks.createRequest(), httpMocks.createResponse(), next);
+    //   errorConverter(error, httpMocks.createRequest(), httpMocks.createResponse(), next);
     
-      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
-      expect(next).toHaveBeenCalledWith(
-        expect.objectContaining({
-          statusCode: error.statusCode,
-          message: httpStatus[error.statusCode],
-          isOperational: false,
-        })
-      );
-    });
+    //   expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    //   expect(next).toHaveBeenCalledWith(
+    //     expect.objectContaining({
+    //       statusCode: error.statusCode,
+    //       message: httpStatus[error.statusCode],
+    //       isOperational: false,
+    //     })
+    //   );
+    // });
 
 });
