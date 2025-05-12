@@ -48,9 +48,7 @@ EXPOSE 27017
 
 RUN echo '#!/bin/bash\n\
 mongod --bind_ip_all --logpath /var/log/mongodb/mongodb.log --dbpath /data/db &\n\
-echo "Waiting for MongoDB to start..."\n\
 until mongosh --eval "db.runCommand({ ping: 1 })" > /dev/null 2>&1; do sleep 1; done\n\
-echo "MongoDB started"\n\
 exec "$@"' > /app/docker-entrypoint.sh && chmod +x /app/docker-entrypoint.sh
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
