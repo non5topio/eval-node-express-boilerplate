@@ -8,5 +8,5 @@ yarn-error.log
 .env*
 !.env*.example
 
-# Code coverage
-coverage
+coverage/*
+!coverage/lcov.info
