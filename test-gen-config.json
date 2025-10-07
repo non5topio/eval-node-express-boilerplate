@@ -15,10 +15,10 @@
       "source-test-file-paths": [
         {
           "source-file-path": "src/middlewares/error.js",
-          "test-file-path": "tests/unit/middlewares/error.test.js"
+          "test-file-path": "tests/unit/middlewares/error.test.js",
+          "test-command": "yarn coverage"
         }
       ],
-      "test-command": "yarn coverage",
       "coverage-type": "lcov",
       "code-coverage-report-path": "coverage/lcov.info",
       "desired-coverage": 90,
